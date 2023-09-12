@@ -1,0 +1,1 @@
+export { processGatewayRequest } from './processGatewayRequest';

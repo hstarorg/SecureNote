@@ -1,7 +1,16 @@
+'use client';
+
 import { PropsWithChildren } from 'react';
 import Image from 'next/image';
+import { globalVm } from '../global-vm';
+import { useViewModel } from '@/utils/bizify';
+import { LayoutViewModel } from './LayoutViewModel';
 
 export default function ConsoleLayout(props: PropsWithChildren<{}>) {
+  const vm = useViewModel(LayoutViewModel);
+
+  const globalData = globalVm.$useSnapshot();
+
   return (
     <main className="flex">
       <div className="fixed left-0 top-0 bottom-0 w-[250px] border-r bg-[#fafafa]">
@@ -30,13 +39,18 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
               height={80}
             />
           </div>
-          <div className="p-2">0x...ssfeafs</div>
+          <div className="p-2">{globalData.user?.address}</div>
           <div>
-            <button className="border py-1 px-2 rounded-md hover:bg-slate-100">Sign in</button>
+            <button
+              className="border py-1 px-2 rounded-md hover:bg-slate-100"
+              onClick={vm.connetWallet}
+            >
+              Connect Wallet
+            </button>
           </div>
         </div>
       </div>
-      <div>{props.children}</div>
+      <div className='ml-[250px]'>{props.children}</div>
     </main>
   );
 }
