@@ -9,6 +9,6 @@ export async function gatewayRequest(action: string, data: any) {
       if (resData.success !== true) {
         return Promise.reject(resData);
       }
-      return resData;
+      return resData.data;
     });
 }

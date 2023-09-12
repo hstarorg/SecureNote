@@ -1,7 +1,7 @@
 import { ControllerBase, defineViewModel } from '@/utils/bizify';
 
 type GlobalState = {
-  user?: { address: string; avatar: string };
+  user?: { address: string; avatar?: string };
 };
 
 class GlobalVM extends ControllerBase<GlobalState> {
@@ -9,6 +9,10 @@ class GlobalVM extends ControllerBase<GlobalState> {
     return {
       // ...
     };
+  }
+
+  setLoginUser(user: { address: string; avatar?: string } | undefined) {
+    this.state.user = user;
   }
 }
 
