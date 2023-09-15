@@ -6,9 +6,13 @@ import { globalVm } from '../global-vm';
 import { useViewModel } from '@/utils/bizify';
 import { LayoutViewModel } from './LayoutViewModel';
 import { evmWallet } from '@/utils';
+import { PlusOutlined } from '@ant-design/icons';
+import { Button, Form, Input } from 'antd';
+import { ModalForm } from '@/components';
 
 export default function ConsoleLayout(props: PropsWithChildren<{}>) {
   const vm = useViewModel(LayoutViewModel);
+  const vmData = vm.$useSnapshot();
 
   const globalData = globalVm.$useSnapshot();
 
@@ -20,7 +24,7 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
   const loggedIn = !!globalData.user;
 
   return (
-    <main className="flex">
+    <main>
       <div className="fixed left-0 top-0 bottom-0 w-[250px] border-r bg-[#fafafa]">
         {/* logo area */}
         <div className="flex h-16 border-b py-2 px-4">
@@ -66,8 +70,35 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
             )}
           </div>
         </div>
+        {/* toc area */}
+        <div>
+          <div className="flex px-4 py-2">
+            <div className="flex-1">
+              <Input.Search />
+            </div>
+            <div className="pl-4">
+              <Button icon={<PlusOutlined />} onClick={vm.showDocModal} />
+            </div>
+          </div>
+        </div>
+        <div className="px-4">
+          <ul>
+            <li>这是一份文档</li>
+          </ul>
+        </div>
       </div>
       <div className="ml-[250px]">{props.children}</div>
+      <ModalForm
+        title="Create new document"
+        open={vmData.docModal.open}
+        onCancel={vm.closeDocModal}
+        onSubmit={vm.handleCreateDoc}
+        formProps={{ layout: 'vertical' }}
+      >
+        <Form.Item label="Title">
+          <Input />
+        </Form.Item>
+      </ModalForm>
     </main>
   );
 }

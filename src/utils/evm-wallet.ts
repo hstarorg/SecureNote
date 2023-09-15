@@ -1,5 +1,14 @@
 import { getAddress, hexToNumber } from 'viem';
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
+import {
+  encryptWithPublicKey,
+  decryptWithPrivateKey,
+  cipher,
+} from 'eth-crypto';
 import { customAlphabet } from 'nanoid';
+import { publicEncrypt } from 'crypto';
+
+console.log(generatePrivateKey());
 
 export type SignResult = {
   message: string;
@@ -13,13 +22,18 @@ class EvmWallet {
   public chainId: number = 0;
   public address: string = '';
 
-  init(): void {
+  private init(): void {
     if ('ethereum' in window) {
       const provider = window.ethereum;
       this.provider = provider;
     } else {
       window.open('https://metamask.io/', `_blank`);
     }
+  }
+
+  getPublicKey(privateKey: `0x${string}`): string {
+    const account = privateKeyToAccount(privateKey);
+    return account.publicKey;
   }
 
   async connect(): Promise<boolean> {
@@ -45,7 +59,13 @@ class EvmWallet {
     return customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789')(12);
   }
 
+  private async initAndConnect() {
+    this.init();
+    await this.connect();
+  }
+
   async signByEIP4361(statement: string): Promise<SignResult> {
+    await this.initAndConnect();
     const loginMsg = {
       domain: location.host,
       chainId: this.chainId,
@@ -129,6 +149,7 @@ class EvmWallet {
   }
 
   async signByEIP712(message: string): Promise<SignResult> {
+    await this.initAndConnect();
     const sign = await this.provider.request({
       method: 'eth_signTypedData_v4',
       params: [this.address, message],
@@ -158,6 +179,18 @@ class EvmWallet {
       return `${address.slice(0, 8)}...${address.slice(-8)}`;
     }
     return address;
+  }
+
+  async encryptWithPublicKey(text: string, pubKey: string) {
+    const finalPubKey = pubKey.startsWith('0x') ? pubKey.slice(2) : pubKey;
+    const encrypted = await encryptWithPublicKey(finalPubKey, text);
+    const result = cipher.stringify(encrypted);
+    return result;
+  }
+
+  async decryptWithPrivateKey(text: string, pubKey: string) {
+    const encrypted = cipher.parse(text);
+    return await decryptWithPrivateKey(pubKey, encrypted);
   }
 }
 
