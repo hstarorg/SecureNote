@@ -1,13 +1,21 @@
 'use client';
 
 import Engine from '@aomao/engine';
-import Toolbar, { ToolbarPlugin, ToolbarComponent } from '@aomao/toolbar';
+import Toolbar, {
+  ToolbarPlugin,
+  ToolbarComponent,
+  ToolbarOptions,
+} from '@aomao/toolbar';
 import Heading from '@aomao/plugin-heading';
+import Orderedlist from '@aomao/plugin-orderedlist';
+import Unorderedlist from '@aomao/plugin-unorderedlist';
+import Quote from '@aomao/plugin-quote';
 import CodeBlock, { CodeBlockComponent } from '@aomao/plugin-codeblock';
 import Bold from '@aomao/plugin-bold';
+import Italic from '@aomao/plugin-italic';
 import Code from '@aomao/plugin-code';
-// import Image, { ImageComponent, ImageUploader } from '@aomao/plugin-image';
 import Link from '@aomao/plugin-link';
+import Table, { TableComponent } from '@aomao/plugin-table';
 import { PureComponent, useEffect, useRef, useState } from 'react';
 
 export type RichEditorProps = { content: string };
@@ -18,13 +26,50 @@ export function RichEditor(props: RichEditorProps) {
 
   useEffect(() => {
     const engine = new Engine(domRef.current!, {
-      plugins: [ToolbarPlugin, Heading, CodeBlock, Bold, Code, Link],
-      cards: [ToolbarComponent, CodeBlockComponent],
+      plugins: [
+        Orderedlist,
+        Unorderedlist,
+        ToolbarPlugin,
+        Heading,
+        CodeBlock,
+        Bold,
+        Code,
+        Link,
+        Quote,
+        Table,
+        Italic,
+      ],
+      cards: [ToolbarComponent, CodeBlockComponent, TableComponent],
       config: {
         [ToolbarPlugin.pluginName]: {
+          config: [
+            {
+              title: 'Tools', // optional
+              items: [
+                { name: 'codeblock', title: 'Code Block' },
+                { name: 'table', title: 'Table' },
+                // 'math',
+                // 'status',
+              ],
+            },
+          ],
           popup: {
-            items: ['image'],
-          },
+            // 选中后弹出的 popup 工具栏
+            items: [
+              [{ name: 'undo', title: 'Undo' }, 'redo'],
+              {
+                icon: 'text',
+                items: [
+                  'bold',
+                  'italic',
+                  'strikethrough',
+                  'underline',
+                  'backcolor',
+                  'moremark',
+                ],
+              },
+            ],
+          } as ToolbarOptions,
         },
       },
     });
@@ -46,7 +91,32 @@ export function RichEditor(props: RichEditorProps) {
           <Toolbar
             className="!border-t-0"
             engine={engine!}
-            items={[[{ name: 'collapse', type: 'button' }], ['bold']]}
+            items={[
+              [
+                {
+                  type: 'collapse',
+                  groups: [
+                    {
+                      items: [
+                        // 'orderedlist',
+                        // 'unorderedlist',
+                        // 'quote',
+                        { name: 'codeblock', title: 'Code Block' },
+                        { name: 'table', title: 'Table' },
+                      ],
+                    },
+                  ],
+
+                  // groups: [
+                  //   {
+                  //     title: 'File',
+                  //     items: ['image-uploader', 'file-uploader'],
+                  //   },
+                  // ],
+                },
+              ],
+              ['bold', 'italic', 'link'],
+            ]}
           />
         ) : null}
       </div>

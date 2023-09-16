@@ -29,9 +29,24 @@ dependencies:
   '@aomao/plugin-image':
     specifier: ^2.10.0
     version: 2.10.0(@aomao/engine@2.10.21)
+  '@aomao/plugin-italic':
+    specifier: ^2.10.0
+    version: 2.10.0(@aomao/engine@2.10.21)
   '@aomao/plugin-link':
     specifier: ^2.10.1
     version: 2.10.1(@aomao/engine@2.10.21)(antd@4.24.14)(react-dom@18.2.0)(react@18.2.0)
+  '@aomao/plugin-orderedlist':
+    specifier: ^2.10.0
+    version: 2.10.0(@aomao/engine@2.10.21)
+  '@aomao/plugin-quote':
+    specifier: ^2.10.0
+    version: 2.10.0(@aomao/engine@2.10.21)
+  '@aomao/plugin-table':
+    specifier: ^2.10.8
+    version: 2.10.8(@aomao/engine@2.10.21)
+  '@aomao/plugin-unorderedlist':
+    specifier: ^2.10.0
+    version: 2.10.0(@aomao/engine@2.10.21)
   '@aomao/toolbar':
     specifier: ^2.11.6
     version: 2.11.6(@aomao/engine@2.10.21)(antd@4.24.14)(react-dom@18.2.0)(react@18.2.0)
@@ -270,6 +285,15 @@ packages:
       photoswipe: 4.1.3
     dev: false
 
+  /@aomao/plugin-italic@2.10.0(@aomao/engine@2.10.21):
+    resolution: {integrity: sha512-CHrl4F9lpllK5cj2KpEpPuiQOu1L/EGFkycHnGNzwtMocJq2DnQ43kmniRjNDR2Rfvy7yUYGIrqcM5fbwnJN/A==}
+    peerDependencies:
+      '@aomao/engine': '>=2.9'
+    dependencies:
+      '@aomao/engine': 2.10.21
+      '@babel/runtime': 7.22.15
+    dev: false
+
   /@aomao/plugin-link@2.10.1(@aomao/engine@2.10.21)(antd@4.24.14)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-64ddUWT/YZLXPNL2IQU++tEPPIFvcVA2+l6lNDgsgomaOiSW1S6mw0QWzJrVx5hpbpFKseWnv7irQEuM5vJjKQ==}
     peerDependencies:
@@ -284,6 +308,45 @@ packages:
       classnames-es-ts: 2.2.7
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@aomao/plugin-orderedlist@2.10.0(@aomao/engine@2.10.21):
+    resolution: {integrity: sha512-Oc8sYlMSeFUKyQ4XiWSzcYBQagiZLimhTBOr/TZheG0AMQyDNKQYOYEiW0OwdLqPlZdCvzAYOAmPL0esZm9wtg==}
+    peerDependencies:
+      '@aomao/engine': '>=2.9'
+    dependencies:
+      '@aomao/engine': 2.10.21
+      '@babel/runtime': 7.22.15
+    dev: false
+
+  /@aomao/plugin-quote@2.10.0(@aomao/engine@2.10.21):
+    resolution: {integrity: sha512-kBb1jx+EVaXrgH91a+XkgpRJf++Zx+djUEvDRPHXZxTcNIWdvCv9BeNIutHleAqaqzVJdO81tqNw88u/K4GQoA==}
+    peerDependencies:
+      '@aomao/engine': '>=2.9'
+    dependencies:
+      '@aomao/engine': 2.10.21
+      '@babel/runtime': 7.22.15
+    dev: false
+
+  /@aomao/plugin-table@2.10.8(@aomao/engine@2.10.21):
+    resolution: {integrity: sha512-Xiw1Uu5wRlnhWj/dNDzA8HyMV9XYWdrmAFQhQPQ+DObPvZmSv+R3iiroKmVHqjxNAl858lzszkivat8b2zV0aQ==}
+    peerDependencies:
+      '@aomao/engine': '>=2.9'
+    dependencies:
+      '@aomao/engine': 2.10.21
+      '@babel/runtime': 7.22.15
+      colord: 2.9.3
+      eventemitter2: 6.4.9
+      lodash: 4.17.21
+    dev: false
+
+  /@aomao/plugin-unorderedlist@2.10.0(@aomao/engine@2.10.21):
+    resolution: {integrity: sha512-C4JHpZ0cuLO2gVEgdVUg0cb26oGfviGj0skaWNImcuV7VJ8f+Ium02mZSCPAtFgwBSkP373xGaLcAaiFCn2bpg==}
+    peerDependencies:
+      '@aomao/engine': '>=2.9'
+    dependencies:
+      '@aomao/engine': 2.10.21
+      '@babel/runtime': 7.22.15
     dev: false
 
   /@aomao/toolbar@2.11.6(@aomao/engine@2.10.21)(antd@4.24.14)(react-dom@18.2.0)(react@18.2.0):
