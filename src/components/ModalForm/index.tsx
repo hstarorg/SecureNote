@@ -1,4 +1,4 @@
-import { Form, FormProps, Modal, ModalProps } from 'antd';
+import { Form, FormProps, Modal, ModalProps } from 'antd5';
 import { PropsWithChildren } from 'react';
 
 export type ModalFormProps = {

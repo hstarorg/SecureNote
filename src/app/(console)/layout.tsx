@@ -7,7 +7,7 @@ import { useViewModel } from '@/utils/bizify';
 import { LayoutViewModel } from './LayoutViewModel';
 import { evmWallet } from '@/utils';
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input } from 'antd5';
 import { ModalForm } from '@/components';
 
 export default function ConsoleLayout(props: PropsWithChildren<{}>) {
@@ -95,8 +95,11 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
         onSubmit={vm.handleCreateDoc}
         formProps={{ layout: 'vertical' }}
       >
-        <Form.Item label="Title">
+        <Form.Item label="Title" name="title" rules={[{ required: true }]}>
           <Input />
+        </Form.Item>
+        <Form.Item label="Description" name="description">
+          <Input.TextArea />
         </Form.Item>
       </ModalForm>
     </main>
