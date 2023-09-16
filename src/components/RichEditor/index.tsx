@@ -8,11 +8,57 @@ import Bold from '@aomao/plugin-bold';
 import Code from '@aomao/plugin-code';
 // import Image, { ImageComponent, ImageUploader } from '@aomao/plugin-image';
 import Link from '@aomao/plugin-link';
-import { PureComponent } from 'react';
+import { PureComponent, useEffect, useRef, useState } from 'react';
 
 export type RichEditorProps = { content: string };
 
-export class RichEditor extends PureComponent<RichEditorProps> {
+export function RichEditor(props: RichEditorProps) {
+  const domRef = useRef<HTMLDivElement>(null);
+  const [engine, setEngine] = useState<Engine | null>(null);
+
+  useEffect(() => {
+    const engine = new Engine(domRef.current!, {
+      plugins: [ToolbarPlugin, Heading, CodeBlock, Bold, Code, Link],
+      cards: [ToolbarComponent, CodeBlockComponent],
+      config: {
+        [ToolbarPlugin.pluginName]: {
+          popup: {
+            items: ['image'],
+          },
+        },
+      },
+    });
+
+    setEngine(engine);
+  }, []);
+
+  useEffect(() => {
+    if (engine && props.content) {
+      engine.setValue(props.content);
+    }
+  }, [engine, props.content]);
+
+  const engineInitialed = !!engine;
+  return (
+    <div>
+      <div className="text-left">
+        {engineInitialed ? (
+          <Toolbar
+            className="!border-t-0"
+            engine={engine!}
+            items={[[{ name: 'collapse', type: 'button' }], ['bold']]}
+          />
+        ) : null}
+      </div>
+      <div
+        className="w-[782px] px-4 pt-4 mx-auto border-x border-gray-100 min-h-[calc(100vh_-_100px)]"
+        ref={domRef}
+      ></div>
+    </div>
+  );
+}
+
+class RichEditor2 extends PureComponent<RichEditorProps> {
   private domRef!: HTMLDivElement;
 
   private engine?: Engine;

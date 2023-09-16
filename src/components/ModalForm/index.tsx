@@ -1,3 +1,5 @@
+'use client';
+
 import { Form, FormProps, Modal, ModalProps } from 'antd5';
 import { PropsWithChildren } from 'react';
 

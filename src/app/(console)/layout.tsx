@@ -7,7 +7,7 @@ import { useViewModel } from '@/utils/bizify';
 import { LayoutViewModel } from './LayoutViewModel';
 import { evmWallet } from '@/utils';
 import { HomeOutlined, PlusOutlined } from '@ant-design/icons';
-import { Alert, Button, Form, Input, List } from 'antd5';
+import { Alert, Button, Form, Input } from 'antd5';
 import { ModalForm } from '@/components';
 import { usePathname, useRouter } from 'next/navigation';
 
