@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "./generated-prisma-client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  adderss           String   @id @map("_id")
+  // 创建时间
+  createdAt         DateTime @default(now()) @map("createdAt")
+  // 最后登录时间
+  lastLoginAt       DateTime @updatedAt @map("lastLoginAt")
+  // 头像
+  avatarUrl         String   @map("avatarUrl")
+  // 昵称
+  displayName       String   @map("displayName")
+  // 用户身份种子
+  identitySeed      String   @map("identitySeed")
+  // 用户身份公钥
+  identityPublicKey String   @map("identityPublicKey")
+}
+
+model Docs {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String    @map("title")
+  content     String    @map("content")
+  description String    @map("description")
+  createdAt   DateTime  @default(now()) @map("createdAt")
+  updatedAt   DateTime  @updatedAt @map("updatedAt")
+  deleted     Boolean   @map("deleted")
+  deletedAt   DateTime? @map("deletedAt")
+  author      String    @map("author")
+  pwd2        String    @map("pwd2")
+
+  @@map("docs")
+}
