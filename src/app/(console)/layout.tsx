@@ -1,6 +1,6 @@
 'use client';
 
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useEffect } from 'react';
 import Image from 'next/image';
 import { globalVm } from '../global-vm';
 import { useViewModel } from '@/utils/bizify';
@@ -16,12 +16,15 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
 
   const globalData = globalVm.$useSnapshot();
 
+  useEffect(() => {
+    globalVm.loadUser();
+  }, []);
+
+  const loggedIn = !!globalData.user;
   const userAddress = evmWallet.shortenWalletAddress(
     globalData.user?.address || '',
     'shorter'
   );
-
-  const loggedIn = !!globalData.user;
 
   return (
     <main>

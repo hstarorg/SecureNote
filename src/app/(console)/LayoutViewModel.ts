@@ -25,17 +25,14 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
     this.state.signInApi
       .execute({ ...result, address: evmWallet.address as any })
       .then((data) => {
-        console.log(data);
-        if (data.verified) {
-          globalVm.setLoginUser({ address: evmWallet.address });
-        }
+        globalVm.loadUser();
       });
   }
 
   async signOut() {
     // TODO: session sign out
     // TODO: disconnect wallet
-    globalVm.setLoginUser(undefined);
+    globalVm.signOut();
   }
 
   async showDocModal() {
@@ -78,7 +75,10 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
 
     const identity = await this.getIdentityByNonce(nonce);
 
-    const encryptedPassword = await evmWallet.encryptWithPublicKey(docPassword, identity.publicKey);
+    const encryptedPassword = await evmWallet.encryptWithPublicKey(
+      docPassword,
+      identity.publicKey
+    );
 
     const encryptedContent = await evmWallet.encryptWithPublicKey(
       '',

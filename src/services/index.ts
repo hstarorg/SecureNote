@@ -1,4 +1,4 @@
-export { signIn } from './account.service';
+export { signIn, signOut, getUser } from './account.service';
 export {
   createDocument,
   updateDocument,

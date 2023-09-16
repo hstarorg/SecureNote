@@ -45,7 +45,6 @@ export async function processGatewayRequest(
       query,
       data: data.data,
     };
-
     const result = await actionHandlers[action](requesInfo);
     return json(result);
   } catch (reason: unknown) {

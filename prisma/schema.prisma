@@ -12,7 +12,7 @@ datasource db {
 }
 
 model User {
-  adderss           String   @id @map("_id")
+  address           String   @id @map("_id")
   // 创建时间
   createdAt         DateTime @default(now()) @map("createdAt")
   // 最后登录时间
@@ -25,9 +25,11 @@ model User {
   identitySeed      String   @map("identitySeed")
   // 用户身份公钥
   identityPublicKey String   @map("identityPublicKey")
+
+    @@map("user")
 }
 
-model Docs {
+model Doc {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   title       String    @map("title")
   content     String    @map("content")
@@ -39,5 +41,5 @@ model Docs {
   author      String    @map("author")
   pwd2        String    @map("pwd2")
 
-  @@map("docs")
+  @@map("doc")
 }

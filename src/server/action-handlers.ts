@@ -1,5 +1,5 @@
 import { getAddress, verifyMessage } from 'viem';
-import { db } from '../common';
+import { db, getSession, setSession } from '../common';
 import {
   CreateDocumentDto,
   DocumentContentDto,
@@ -27,22 +27,43 @@ export const actionHandlers: Record<string, HandlerFunc> = {
       throw new BadRequestError('Invalid signature');
     }
 
-    console.log('godddddddd', db.user, db.docs)
-    const user = await db.user.create({
-      data: {
-        adderss: getAddress(address) as string,
+    const normalizedAddress = getAddress(address) as string;
+    const user = await db.user.upsert({
+      where: {
+        address: normalizedAddress,
+      },
+      update: {
+        lastLoginAt: new Date(),
+      },
+      create: {
+        address: normalizedAddress,
         avatarUrl: '',
         identityPublicKey: '',
         identitySeed: '',
         displayName: '',
       },
     });
+    await setSession({ user: { address: user.address } });
     return null;
+  },
+
+  signOut: async () => {
+    await setSession({ user: undefined });
+    return null;
+  },
+
+  async getUser() {
+    const session = await getSession();
+    const userId = session.user?.address || '';
+    const user = await db.user.findUnique({
+      where: { address: userId },
+    });
+    return user;
   },
 
   async createDocument(info: RequestInfo<CreateDocumentDto>) {
     const { title, description, pwd2 } = info.data;
-    const newDoc = await db.docs.create({
+    const newDoc = await db.doc.create({
       data: {
         title,
         description: description || '',

@@ -1,4 +1,4 @@
-export async function gatewayRequest(action: string, data: any) {
+export async function gatewayRequest(action: string, data?: any) {
   return fetch(`/api/gateway?action=${action}`, {
     headers: { 'content-type': 'application/json' },
     method: 'POST',
