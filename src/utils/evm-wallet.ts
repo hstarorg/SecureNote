@@ -1,18 +1,15 @@
 import { getAddress, hexToNumber } from 'viem';
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
+import { privateKeyToAccount } from 'viem/accounts';
 import {
   encryptWithPublicKey,
   decryptWithPrivateKey,
   cipher,
 } from 'eth-crypto';
 import { customAlphabet } from 'nanoid';
-import { publicEncrypt } from 'crypto';
-
-console.log(generatePrivateKey());
 
 export type SignResult = {
   message: string;
-  signature: string;
+  signature: `0x${string}`;
   [key: string]: any;
 };
 
@@ -34,6 +31,10 @@ class EvmWallet {
   getPublicKey(privateKey: `0x${string}`): string {
     const account = privateKeyToAccount(privateKey);
     return account.publicKey;
+  }
+
+  getAddress(address: string) {
+    return getAddress(address);
   }
 
   async connect(): Promise<boolean> {
@@ -101,7 +102,7 @@ class EvmWallet {
     });
     return {
       message: fullMessage,
-      signature: sign,
+      signature: sign as `0x${string}`,
     };
   }
 
