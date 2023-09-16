@@ -1,26 +1,17 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { actionHandlers } from './action-handlers';
 
 function json(resData: unknown) {
-  return new Response(
-    JSON.stringify({
-      success: true,
-      data: resData,
-      statusCode: 200,
-    })
-  );
+  return NextResponse.json({ success: true, data: resData, statusCode: 200 });
 }
 
 function jsonError(message: string, statusCode: number, error?: Error) {
-  return new Response(
-    JSON.stringify({
-      success: false,
-
-      statusCode,
-      message,
-      error,
-    })
-  );
+  return NextResponse.json({
+    success: false,
+    statusCode,
+    message,
+    error,
+  });
 }
 
 export async function processGatewayRequest(

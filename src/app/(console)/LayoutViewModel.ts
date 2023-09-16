@@ -1,4 +1,4 @@
-import { signIn } from '@/services';
+import { signIn, createDocument } from '@/services';
 import { evmWallet } from '@/utils';
 import { ControllerBase, ServiceInstance } from '@/utils/bizify';
 import { globalVm } from '../global-vm';
@@ -23,7 +23,7 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
     const result = await evmWallet.signByEIP4361('Welcome to SecureNote!');
 
     this.state.signInApi
-      .execute({ ...result, address: evmWallet.address })
+      .execute({ ...result, address: evmWallet.address as any })
       .then((data) => {
         console.log(data);
         if (data.verified) {
@@ -46,9 +46,7 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
     this.state.docModal.open = false;
   }
 
-  async handleCreateDoc() {
-    const docPassword = nanoid();
-    const rnd = nanoid();
+  private async getIdentityByNonce(nonce: string) {
     const signResult = await evmWallet.signByEIP712(
       JSON.stringify({
         types: {
@@ -60,25 +58,40 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
           name: 'Secure Note',
         },
         message: {
-          nonce: rnd,
+          nonce,
         },
       })
     );
-
     const privateKey = signResult.signature.slice(0, 66) as `0x${string}`;
-    const pubKey = evmWallet.getPublicKey(privateKey);
+    const publicKey = evmWallet.getPublicKey(privateKey);
 
-    console.log('pubKey', pubKey);
+    return {
+      privateKey,
+      publicKey,
+    };
+  }
 
-    const encryptedPassword = await evmWallet.encryptWithPublicKey(
-      docPassword,
-      pubKey
+  async handleCreateDoc(values: any) {
+    const nonce = nanoid();
+
+    const docPassword = nanoid();
+
+    const identity = await this.getIdentityByNonce(nonce);
+
+    const encryptedPassword = await evmWallet.encryptWithPublicKey(docPassword, identity.publicKey);
+
+    const encryptedContent = await evmWallet.encryptWithPublicKey(
+      '',
+      identity.publicKey
     );
 
-    const d = await evmWallet.decryptWithPrivateKey(
-      encryptedPassword,
-      privateKey
-    );
-    console.log(encryptedPassword, rnd, d, docPassword, d === docPassword);
+    const doc = await createDocument({
+      title: values.title,
+      description: values.description || '',
+      content: encryptedContent,
+      nonce,
+    });
+
+    this.closeDocModal();
   }
 }
