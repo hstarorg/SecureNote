@@ -13,5 +13,5 @@ export const ClientWrapper = ({ children }: { children: React.ReactNode }) => {
       dangerouslySetInnerHTML={{ __html: extractStyle(cache, true) }}
     />
   ));
-  return <StyleProvider cache={cache}>{children}</StyleProvider>;
+  return <StyleProvider cache={cache} hashPriority='high'>{children}</StyleProvider>;
 };
