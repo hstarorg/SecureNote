@@ -1,5 +1,6 @@
-export { signIn, signOut, getUser } from './account.service';
+export { signIn, signOut, getUser, setIdentity } from './account.service';
 export {
+  queryMyDocuments,
   createDocument,
   updateDocument,
   updateDocumentContent,

@@ -6,6 +6,23 @@ export type SignInDto = {
   message: string;
 };
 
+export type UserRespDto = {
+  address: string;
+  createdAt: Date;
+  lastLoginAt: Date;
+  avatarUrl: string;
+  displayName: string;
+  identitySeed: string;
+  identityPublicKey: string;
+};
+
+export type SetIdentityDto = {
+  identitySeed: string;
+  identityPublicKey: string;
+};
+
+export type QueryDocumentDto = {};
+
 export type CreateDocumentDto = {
   title: string;
   description: string;

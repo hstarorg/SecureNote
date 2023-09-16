@@ -7,7 +7,7 @@ import { useViewModel } from '@/utils/bizify';
 import { LayoutViewModel } from './LayoutViewModel';
 import { evmWallet } from '@/utils';
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Form, Input } from 'antd5';
+import { Alert, Button, Form, Input } from 'antd5';
 import { ModalForm } from '@/components';
 
 export default function ConsoleLayout(props: PropsWithChildren<{}>) {
@@ -21,6 +21,24 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
   }, []);
 
   const loggedIn = !!globalData.user;
+
+  useEffect(() => {
+    if (loggedIn && !vmData.queryMyDocumentsApi.isLoadedOnce) {
+      vm.loadMyDocuments();
+    }
+  }, [loggedIn]);
+
+  useEffect(() => {
+    // 已登录但没有身份种子，就需要去设置
+    if (loggedIn) {
+      if (!globalData.user?.identitySeed) {
+        vm.showIdentityModal();
+      } else {
+        vm.hideIdentityModal();
+      }
+    }
+  }, [loggedIn, globalData.user?.identitySeed]);
+
   const userAddress = evmWallet.shortenWalletAddress(
     globalData.user?.address || '',
     'shorter'
@@ -74,21 +92,27 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
           </div>
         </div>
         {/* toc area */}
-        <div>
-          <div className="flex px-4 py-2">
-            <div className="flex-1">
-              <Input.Search />
+        {loggedIn ? (
+          <>
+            <div>
+              <div className="flex px-4 py-2">
+                <div className="flex-1">
+                  <Input.Search />
+                </div>
+                <div className="pl-4">
+                  <Button icon={<PlusOutlined />} onClick={vm.showDocModal} />
+                </div>
+              </div>
             </div>
-            <div className="pl-4">
-              <Button icon={<PlusOutlined />} onClick={vm.showDocModal} />
+            <div className="px-4">
+              <ul>
+                <li>这是一份文档</li>
+              </ul>
             </div>
-          </div>
-        </div>
-        <div className="px-4">
-          <ul>
-            <li>这是一份文档</li>
-          </ul>
-        </div>
+          </>
+        ) : (
+          <div className="text-center mt-4">Please sign in!</div>
+        )}
       </div>
       <div className="ml-[250px]">{props.children}</div>
       <ModalForm
@@ -105,6 +129,40 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
           <Input.TextArea />
         </Form.Item>
       </ModalForm>
+      {vmData.identityModal.open ? (
+        <ModalForm
+          title="Enable Security Identity"
+          open={true}
+          onSubmit={vm.handleSetIdentitySeed}
+          formProps={{
+            layout: 'vertical',
+            initialValues: { seed: vm.getSeed() },
+          }}
+          modalProps={{
+            closable: false,
+            cancelButtonProps: { style: { display: 'none' } },
+          }}
+        >
+          <Form.Item
+            label="Recovery Code"
+            name="seed"
+            rules={[{ required: true }]}
+          >
+            <Input.TextArea rows={4} style={{ resize: 'none' }} />
+          </Form.Item>
+          <Alert
+            type="warning"
+            message={
+              <div>
+                Please backup this content! You can use this recovery your
+                documents password.
+                <br />
+                This will be only set once!
+              </div>
+            }
+          />
+        </ModalForm>
+      ) : null}
     </main>
   );
 }

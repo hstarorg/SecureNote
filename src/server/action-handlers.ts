@@ -1,8 +1,10 @@
-import { getAddress, verifyMessage } from 'viem';
+import { getAddress, verifyMessage, verifyTypedData } from 'viem';
 import { db, getSession, setSession } from '../common';
 import {
   CreateDocumentDto,
   DocumentContentDto,
+  QueryDocumentDto,
+  SetIdentityDto,
   SignInDto,
   UpdateDocumentDto,
 } from '@/types/dto-types';
@@ -52,6 +54,29 @@ export const actionHandlers: Record<string, HandlerFunc> = {
     return null;
   },
 
+  async setIdentity(info: RequestInfo<SetIdentityDto>) {
+    const session = await getSession();
+    const userId = session.user?.address || '';
+    const { identitySeed, identityPublicKey } = info.data;
+
+    try {
+      const user = await db.user.update({
+        where: { address: userId, identitySeed: '', identityPublicKey: '' },
+        data: {
+          identitySeed,
+          identityPublicKey,
+        },
+      });
+      if (!user.identitySeed) {
+        throw new BadRequestError('Set identity failed');
+      }
+      return null;
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestError('Set identity failed');
+    }
+  },
+
   async getUser() {
     const session = await getSession();
     const userId = session.user?.address || '';
@@ -59,6 +84,19 @@ export const actionHandlers: Record<string, HandlerFunc> = {
       where: { address: userId },
     });
     return user;
+  },
+
+  async queryMyDocuments(info: RequestInfo<QueryDocumentDto>) {
+    const session = await getSession();
+    const userId = session.user?.address || '';
+    const docs = await db.doc.findMany({
+      where: { author: userId },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        title: true,
+      },
+    });
+    return { rows: docs };
   },
 
   async createDocument(info: RequestInfo<CreateDocumentDto>) {

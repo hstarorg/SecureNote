@@ -1,4 +1,5 @@
 import { getUser, signOut } from '@/services';
+import { UserRespDto } from '@/types/dto-types';
 import {
   ControllerBase,
   ServiceInstance,
@@ -6,7 +7,7 @@ import {
 } from '@/utils/bizify';
 
 type GlobalState = {
-  user?: { address: string; avatar?: string };
+  user?: UserRespDto;
   getUserApi: ServiceInstance<typeof getUser>;
   signOutApi: ServiceInstance<typeof signOut>;
 };

@@ -1,5 +1,13 @@
-import { CreateDocumentDto, UpdateDocumentDto } from '@/types/dto-types';
+import {
+  CreateDocumentDto,
+  QueryDocumentDto,
+  UpdateDocumentDto,
+} from '@/types/dto-types';
 import { gatewayRequest } from './gateway.base';
+
+export function queryMyDocuments(dto: QueryDocumentDto) {
+  return gatewayRequest('queryMyDocuments', dto);
+}
 
 export function createDocument(dto: CreateDocumentDto) {
   return gatewayRequest('createDocument', dto);

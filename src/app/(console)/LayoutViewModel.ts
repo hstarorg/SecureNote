@@ -1,4 +1,9 @@
-import { signIn, createDocument } from '@/services';
+import {
+  signIn,
+  createDocument,
+  queryMyDocuments,
+  setIdentity,
+} from '@/services';
 import { evmWallet } from '@/utils';
 import { ControllerBase, ServiceInstance } from '@/utils/bizify';
 import { globalVm } from '../global-vm';
@@ -6,7 +11,12 @@ import { nanoid } from 'nanoid';
 
 type LayoutState = {
   signInApi: ServiceInstance<typeof signIn>;
+  queryMyDocumentsApi: ServiceInstance<typeof queryMyDocuments>;
+  setIdentityApi: ServiceInstance<typeof setIdentity>;
   docModal: {
+    open: boolean;
+  };
+  identityModal: {
     open: boolean;
   };
 };
@@ -15,7 +25,10 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
   protected $data(): LayoutState {
     return {
       signInApi: this.$createService(signIn),
+      queryMyDocumentsApi: this.$createService(queryMyDocuments),
+      setIdentityApi: this.$createService(setIdentity),
       docModal: { open: false },
+      identityModal: { open: false },
     };
   }
 
@@ -30,8 +43,6 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
   }
 
   async signOut() {
-    // TODO: session sign out
-    // TODO: disconnect wallet
     globalVm.signOut();
   }
 
@@ -43,19 +54,23 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
     this.state.docModal.open = false;
   }
 
-  private async getIdentityByNonce(nonce: string) {
+  async loadMyDocuments() {
+    this.state.queryMyDocumentsApi.execute({}).then((data) => {});
+  }
+
+  private async getIdentityByWallet(seed: string) {
     const signResult = await evmWallet.signByEIP712(
       JSON.stringify({
         types: {
           EIP712Domain: [{ name: 'name', type: 'string' }],
-          Info: [{ name: 'nonce', type: 'string' }],
+          Info: [{ name: 'seed', type: 'string' }],
         },
         primaryType: 'Info',
         domain: {
           name: 'Secure Note',
         },
         message: {
-          nonce,
+          seed,
         },
       })
     );
@@ -73,7 +88,7 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
 
     const docPassword = nanoid();
 
-    const identity = await this.getIdentityByNonce(nonce);
+    const identity = await this.getIdentityByWallet(nonce);
 
     const encryptedPassword = await evmWallet.encryptWithPublicKey(
       docPassword,
@@ -89,9 +104,32 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
       title: values.title,
       description: values.description || '',
       content: encryptedContent,
-      nonce,
+      pwd2: encryptedPassword,
     });
 
     this.closeDocModal();
+  }
+
+  showIdentityModal() {
+    this.state.identityModal.open = true;
+  }
+
+  hideIdentityModal() {
+    this.state.identityModal.open = false;
+  }
+
+  getSeed() {
+    return `Seed for generate identity in Secure Note: ${nanoid()}`;
+  }
+
+  async handleSetIdentitySeed(values: { seed: string }) {
+    const identity = await this.getIdentityByWallet(values.seed);
+
+    const a = await this.state.setIdentityApi.execute({
+      identitySeed: values.seed,
+      identityPublicKey: identity.publicKey,
+    });
+
+    globalVm.loadUser();
   }
 }
