@@ -4,10 +4,11 @@ import {
   queryMyDocuments,
   setIdentity,
 } from '@/services';
-import { evmWallet } from '@/utils';
+import { evmWallet, aesEncrypt } from '@/utils';
 import { ControllerBase, ServiceInstance } from '@/utils/bizify';
 import { globalVm } from '../global-vm';
 import { nanoid } from 'nanoid';
+import { message } from 'antd5';
 
 type LayoutState = {
   signInApi: ServiceInstance<typeof signIn>;
@@ -84,22 +85,27 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
   }
 
   async handleCreateDoc(values: any) {
-    const nonce = nanoid();
-
+    // 1. 随机生成文档密码
     const docPassword = nanoid();
 
-    const identity = await this.getIdentityByWallet(nonce);
+    const user = globalVm.$getState().user;
 
+    // 2. 用公钥加密密码
+    const publicKey = user?.identityPublicKey;
+    if (!publicKey) {
+      message.error(
+        'Can not find identity public key, please set identity first'
+      );
+    }
     const encryptedPassword = await evmWallet.encryptWithPublicKey(
       docPassword,
-      identity.publicKey
+      publicKey!
     );
 
-    const encryptedContent = await evmWallet.encryptWithPublicKey(
-      '',
-      identity.publicKey
-    );
+    // 3. 用密码加密文档内容
+    const encryptedContent = await aesEncrypt('', docPassword);
 
+    // 4. 提交到 DB
     const doc = await createDocument({
       title: values.title,
       description: values.description || '',
@@ -108,6 +114,7 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
     });
 
     this.closeDocModal();
+    this.loadMyDocuments();
   }
 
   showIdentityModal() {

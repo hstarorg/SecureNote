@@ -6,13 +6,16 @@ import { globalVm } from '../global-vm';
 import { useViewModel } from '@/utils/bizify';
 import { LayoutViewModel } from './LayoutViewModel';
 import { evmWallet } from '@/utils';
-import { PlusOutlined } from '@ant-design/icons';
-import { Alert, Button, Form, Input } from 'antd5';
+import { HomeOutlined, PlusOutlined } from '@ant-design/icons';
+import { Alert, Button, Form, Input, List } from 'antd5';
 import { ModalForm } from '@/components';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function ConsoleLayout(props: PropsWithChildren<{}>) {
   const vm = useViewModel(LayoutViewModel);
   const vmData = vm.$useSnapshot();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const globalData = globalVm.$useSnapshot();
 
@@ -43,6 +46,9 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
     globalData.user?.address || '',
     'shorter'
   );
+
+  const docs = vmData.queryMyDocumentsApi.data?.rows || [];
+  const docId = pathname.split('/')[2];
 
   return (
     <main>
@@ -95,18 +101,34 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
         {loggedIn ? (
           <>
             <div>
-              <div className="flex px-4 py-2">
+              <div className="flex p-2">
                 <div className="flex-1">
                   <Input.Search />
                 </div>
-                <div className="pl-4">
+                <div className="pl-2">
                   <Button icon={<PlusOutlined />} onClick={vm.showDocModal} />
                 </div>
               </div>
             </div>
-            <div className="px-4">
-              <ul>
-                <li>这是一份文档</li>
+            <div className="px-2">
+              <div className="px-2 py-1 rounded bg-gray-100">
+                <HomeOutlined /> Overview
+              </div>
+              <ul className="mt-2">
+                {docs.map((doc: any) => {
+                  return (
+                    <li
+                      key={doc.id}
+                      className={
+                        'px-2 py-1 mb-2 rounded hover:cursor-pointer hover:bg-gray-200' +
+                        (docId === doc.id ? ' bg-gray-200' : '')
+                      }
+                      onClick={() => router.push(`/docs/${doc.id}`)}
+                    >
+                      {doc.title}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </>
@@ -121,6 +143,7 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
         onCancel={vm.closeDocModal}
         onSubmit={vm.handleCreateDoc}
         formProps={{ layout: 'vertical' }}
+        modalProps={{ maskClosable: false }}
       >
         <Form.Item label="Title" name="title" rules={[{ required: true }]}>
           <Input />

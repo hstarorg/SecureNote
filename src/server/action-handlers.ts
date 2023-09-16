@@ -94,19 +94,22 @@ export const actionHandlers: Record<string, HandlerFunc> = {
       orderBy: { createdAt: 'desc' },
       select: {
         title: true,
+        id: true,
       },
     });
     return { rows: docs };
   },
 
   async createDocument(info: RequestInfo<CreateDocumentDto>) {
+    const session = await getSession();
+    const userId = session.user?.address || '';
     const { title, description, pwd2 } = info.data;
     const newDoc = await db.doc.create({
       data: {
         title,
         description: description || '',
         pwd2,
-        author: '',
+        author: userId,
         content: '',
         deleted: false,
       },
