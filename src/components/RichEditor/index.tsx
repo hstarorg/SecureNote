@@ -5,6 +5,6 @@ import type { ComponentType } from 'react';
 export const RichEditor: ComponentType<RichEditorProps> = dynamic(
   () => import('./RichEditor'),
   {
-    loading: () => <p>Loading...</p>,
+    loading: () => <span></span>,
   }
 );

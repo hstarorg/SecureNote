@@ -22,7 +22,7 @@ export default function Home() {
         </div>
       </header>
       <div className="">
-        <RichEditor content="Hello" />
+        <RichEditor content="Hello" readonly />
       </div>
     </main>
   );
