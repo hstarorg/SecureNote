@@ -189,9 +189,34 @@ class EvmWallet {
     return result;
   }
 
-  async decryptWithPrivateKey(text: string, pubKey: string) {
+  async decryptWithPrivateKey(text: string, privateKey: string) {
     const encrypted = cipher.parse(text);
-    return await decryptWithPrivateKey(pubKey, encrypted);
+    return await decryptWithPrivateKey(privateKey, encrypted);
+  }
+
+  async getIdentityByWallet(seed: string) {
+    const signResult = await evmWallet.signByEIP712(
+      JSON.stringify({
+        types: {
+          EIP712Domain: [{ name: 'name', type: 'string' }],
+          Info: [{ name: 'seed', type: 'string' }],
+        },
+        primaryType: 'Info',
+        domain: {
+          name: 'Secure Note',
+        },
+        message: {
+          seed,
+        },
+      })
+    );
+    const privateKey = signResult.signature.slice(0, 66) as `0x${string}`;
+    const publicKey = evmWallet.getPublicKey(privateKey);
+
+    return {
+      privateKey,
+      publicKey,
+    };
   }
 }
 
