@@ -7,7 +7,7 @@ import { useViewModel } from '@/utils/bizify';
 import { LayoutViewModel } from './LayoutViewModel';
 import { evmWallet } from '@/utils';
 import { HomeOutlined, PlusOutlined } from '@ant-design/icons';
-import { Alert, Button, Form, Input } from 'antd5';
+import { Alert, Avatar, Button, Form, Input, Spin } from 'antd5';
 import { ModalForm } from '@/components';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -54,7 +54,10 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
     <main>
       <div className="fixed left-0 top-0 bottom-0 w-[250px] border-r bg-[#fafafa]">
         {/* logo area */}
-        <div className="flex h-16 border-b py-2 px-4">
+        <div
+          className="flex h-16 border-b py-2 px-4 cursor-pointer"
+          onClick={() => router.push('/')}
+        >
           <div>
             <Image
               src="/sn-logo.png"
@@ -70,30 +73,31 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
         {/* user area */}
         <div className="py-2 text-center flex flex-col border-b">
           <div className="text-center">
-            <Image
+            {/* <Image
               className="rounded-[50%] inline-block"
               src="https://avatars.githubusercontent.com/u/4043284?v=4"
               alt="avatar"
               width={80}
               height={80}
-            />
+            /> */}
+            <Avatar
+              size={80}
+              // src="https://avatars.githubusercontent.com/u/4043284?v=4"
+              shape="circle"
+            >
+              {userAddress}
+            </Avatar>
           </div>
           <div className="p-2">{userAddress}</div>
           <div>
             {loggedIn ? (
-              <button
-                className="border py-1 px-2 rounded-md hover:bg-slate-100"
-                onClick={vm.signOut}
-              >
-                Disconnect
-              </button>
+              <Button type="link" onClick={vm.signOut}>
+                Sign Out
+              </Button>
             ) : (
-              <button
-                className="border py-1 px-2 rounded-md hover:bg-slate-100"
-                onClick={vm.connetWallet}
-              >
-                Connect Wallet
-              </button>
+              <Button type="primary" onClick={vm.connetWallet}>
+                Sign In
+              </Button>
             )}
           </div>
         </div>
@@ -114,26 +118,28 @@ export default function ConsoleLayout(props: PropsWithChildren<{}>) {
               <div className="px-2 py-1 rounded bg-gray-100">
                 <HomeOutlined /> Overview
               </div>
-              <ul className="mt-2">
-                {docs.map((doc: any) => {
-                  return (
-                    <li
-                      key={doc.id}
-                      className={
-                        'px-2 py-1 mb-2 rounded hover:cursor-pointer hover:bg-gray-200' +
-                        (docId === doc.id ? ' bg-gray-200' : '')
-                      }
-                      onClick={() => router.push(`/docs/${doc.id}`)}
-                    >
-                      {doc.title}
-                    </li>
-                  );
-                })}
-              </ul>
+              <Spin spinning={vmData.queryMyDocumentsApi.isLoading}>
+                <ul className="mt-2">
+                  {docs.map((doc: any) => {
+                    return (
+                      <li
+                        key={doc.id}
+                        className={
+                          'px-2 py-1 mb-2 rounded hover:cursor-pointer hover:bg-gray-200' +
+                          (docId === doc.id ? ' bg-gray-200' : '')
+                        }
+                        onClick={() => router.push(`/docs/${doc.id}`)}
+                      >
+                        {doc.title}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </Spin>
             </div>
           </>
         ) : (
-          <div className="text-center mt-4">Please sign in!</div>
+          <div className="text-center mt-4"></div>
         )}
       </div>
       <div className="ml-[250px]">{props.children}</div>

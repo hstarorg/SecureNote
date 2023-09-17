@@ -1,4 +1,4 @@
-import { signIn, getDocumentDetail, saveDocumentContent } from '@/services';
+import { getDocumentDetail, saveDocumentContent } from '@/services';
 import { evmWallet, aesEncrypt, aesDecrypt } from '@/utils';
 import { ControllerBase, ServiceInstance } from '@/utils/bizify';
 import { globalVm } from '@/app/global-vm';

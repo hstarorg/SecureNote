@@ -16,10 +16,19 @@ export default function Home() {
   const vm = useViewModel(DocDetailViewModel, { docId: params.id });
   const vmData = vm.$useSnapshot();
 
+  const updateAt = vmData.docDetail?.updatedAt;
+
   return (
     <main className="pt-16">
       <header className="h-16 border-b fixed top-0 left-[250px] right-0 px-4 flex z-10 bg-white">
-        <div className="flex-1">{vmData.docDetail?.title}</div>
+        <div className="flex-1 py-3">
+          <div className="text-base">{vmData.docDetail?.title}</div>
+          {updateAt ? (
+            <div className="text-xs text-gray-500">
+              Last update at: {updateAt}
+            </div>
+          ) : null}
+        </div>
         <div className="py-4">
           {vmData.isEdit ? (
             <Button type="primary" onClick={vm.saveDocument}>
