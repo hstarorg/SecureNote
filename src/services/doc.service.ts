@@ -1,5 +1,8 @@
 import {
   CreateDocumentDto,
+  DocumentContentDto,
+  DocumentRespDto,
+  QueryDocumentDetailDto,
   QueryDocumentDto,
   UpdateDocumentDto,
 } from '@/types/dto-types';
@@ -17,6 +20,12 @@ export function updateDocument(dto: UpdateDocumentDto) {
   return gatewayRequest('updateDocument', dto);
 }
 
-export function updateDocumentContent(dto: UpdateDocumentDto) {
-  return gatewayRequest('updateDocument', dto);
+export function saveDocumentContent(dto: DocumentContentDto) {
+  return gatewayRequest('saveDocumentContent', dto);
+}
+
+export function getDocumentDetail(
+  dto: QueryDocumentDetailDto
+): Promise<DocumentRespDto> {
+  return gatewayRequest('getDocumentDetail', dto);
 }

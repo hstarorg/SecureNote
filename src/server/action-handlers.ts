@@ -3,6 +3,7 @@ import { db, getSession, setSession } from '../common';
 import {
   CreateDocumentDto,
   DocumentContentDto,
+  QueryDocumentDetailDto,
   QueryDocumentDto,
   SetIdentityDto,
   SignInDto,
@@ -118,10 +119,44 @@ export const actionHandlers: Record<string, HandlerFunc> = {
     return { doc: newDoc };
   },
 
+  async getDocumentDetail(info: RequestInfo<QueryDocumentDetailDto>) {
+    const session = await getSession();
+    const userId = session.user?.address || '';
+    const { docId } = info.data;
+
+    const doc = await db.doc.findUnique({
+      where: {
+        id: docId,
+        author: userId,
+      },
+      select: {
+        content: true,
+        createdAt: true,
+        description: true,
+        id: true,
+        pwd2: true,
+        title: true,
+        updatedAt: true,
+      },
+    });
+    return doc;
+  },
+
   async updateDocument(info: RequestInfo<UpdateDocumentDto>) {
     const { title, description } = info.data;
     return { doc: {} };
   },
 
-  async saveDocumentContent(info: RequestInfo<DocumentContentDto>) {},
+  async saveDocumentContent(info: RequestInfo<DocumentContentDto>) {
+    const session = await getSession();
+    const userId = session.user?.address || '';
+    const { docId, content } = info.data;
+
+    await db.doc.update({
+      where: { id: docId, author: userId },
+      data: { content, updatedAt: new Date() },
+    });
+
+    return null;
+  },
 };

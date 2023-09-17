@@ -3,5 +3,6 @@ export {
   queryMyDocuments,
   createDocument,
   updateDocument,
-  updateDocumentContent,
+  saveDocumentContent,
+  getDocumentDetail
 } from './doc.service';

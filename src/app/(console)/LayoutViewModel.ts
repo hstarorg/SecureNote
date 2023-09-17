@@ -59,31 +59,6 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
     this.state.queryMyDocumentsApi.execute({}).then((data) => {});
   }
 
-  private async getIdentityByWallet(seed: string) {
-    const signResult = await evmWallet.signByEIP712(
-      JSON.stringify({
-        types: {
-          EIP712Domain: [{ name: 'name', type: 'string' }],
-          Info: [{ name: 'seed', type: 'string' }],
-        },
-        primaryType: 'Info',
-        domain: {
-          name: 'Secure Note',
-        },
-        message: {
-          seed,
-        },
-      })
-    );
-    const privateKey = signResult.signature.slice(0, 66) as `0x${string}`;
-    const publicKey = evmWallet.getPublicKey(privateKey);
-
-    return {
-      privateKey,
-      publicKey,
-    };
-  }
-
   async handleCreateDoc(values: any) {
     // 1. 随机生成文档密码
     const docPassword = nanoid();
@@ -130,7 +105,7 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
   }
 
   async handleSetIdentitySeed(values: { seed: string }) {
-    const identity = await this.getIdentityByWallet(values.seed);
+    const identity = await evmWallet.getIdentityByWallet(values.seed);
 
     const a = await this.state.setIdentityApi.execute({
       identitySeed: values.seed,

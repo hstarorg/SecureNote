@@ -23,6 +23,10 @@ export type SetIdentityDto = {
 
 export type QueryDocumentDto = {};
 
+export type QueryDocumentDetailDto = {
+  docId: string;
+};
+
 export type CreateDocumentDto = {
   title: string;
   description: string;
@@ -35,4 +39,17 @@ export type UpdateDocumentDto = {
   description: string;
 };
 
-export type DocumentContentDto = {};
+export type DocumentContentDto = {
+  docId: string;
+  content: string;
+};
+
+export type DocumentRespDto = {
+  content: string;
+  createdAt: string;
+  description: string;
+  id: string;
+  pwd2: string;
+  title: string;
+  updatedAt: string;
+};
