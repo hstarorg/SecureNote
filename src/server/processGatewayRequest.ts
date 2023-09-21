@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { actionHandlers } from './action-handlers';
 
 function json(resData: unknown) {
@@ -10,14 +11,11 @@ function jsonError(message: string, statusCode: number, error?: Error) {
     success: false,
     statusCode,
     message,
-    error,
+    error
   });
 }
 
-export async function processGatewayRequest(
-  request: NextRequest,
-  context: { params: any }
-) {
+export async function processGatewayRequest(request: NextRequest, context: { params: any }) {
   // 1. Parse the request data
   const url = new URL(request.url);
 
@@ -43,7 +41,7 @@ export async function processGatewayRequest(
       pathname: url.pathname,
       params: context.params,
       query,
-      data: data.data,
+      data: data.data
     };
     const result = await actionHandlers[action](requesInfo);
     return json(result);

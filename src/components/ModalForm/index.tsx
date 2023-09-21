@@ -8,21 +8,11 @@ export type ModalFormProps = {
   title?: string;
   onSubmit?: (values: any) => void;
   onCancel?: () => void;
-  modalProps?: Partial<
-    Omit<ModalProps, 'open' | 'title' | 'onOk' | 'onCancel'>
-  >;
+  modalProps?: Partial<Omit<ModalProps, 'open' | 'title' | 'onOk' | 'onCancel'>>;
   formProps?: Partial<Omit<FormProps, 'form'>>;
 };
 export function ModalForm(props: PropsWithChildren<ModalFormProps>) {
-  const {
-    title,
-    children,
-    modalProps = {},
-    formProps = {},
-    open,
-    onCancel,
-    onSubmit,
-  } = props;
+  const { title, children, modalProps = {}, formProps = {}, open, onCancel, onSubmit } = props;
   const [form] = Form.useForm();
 
   function handleOk() {
@@ -32,13 +22,7 @@ export function ModalForm(props: PropsWithChildren<ModalFormProps>) {
   }
 
   return (
-    <Modal
-      {...modalProps}
-      title={title}
-      open={open}
-      onOk={handleOk}
-      onCancel={onCancel}
-    >
+    <Modal {...modalProps} title={title} open={open} onOk={handleOk} onCancel={onCancel}>
       <Form {...formProps} form={form}>
         {children}
       </Form>

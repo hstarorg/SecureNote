@@ -1,30 +1,19 @@
 'use client';
 
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
 import Engine from '@aomao/engine';
 
-import Toolbar, {
-  ToolbarPlugin,
-  ToolbarComponent,
-  ToolbarOptions,
-} from '@aomao/toolbar';
-
-import Heading from '@aomao/plugin-heading';
-import Orderedlist from '@aomao/plugin-orderedlist';
-import Unorderedlist from '@aomao/plugin-unorderedlist';
-import Quote from '@aomao/plugin-quote';
-import CodeBlock, { CodeBlockComponent } from '@aomao/plugin-codeblock';
 import Bold from '@aomao/plugin-bold';
-import Italic from '@aomao/plugin-italic';
 import Code from '@aomao/plugin-code';
+import CodeBlock, { CodeBlockComponent } from '@aomao/plugin-codeblock';
+import Heading from '@aomao/plugin-heading';
+import Italic from '@aomao/plugin-italic';
 import Link from '@aomao/plugin-link';
+import Orderedlist from '@aomao/plugin-orderedlist';
+import Quote from '@aomao/plugin-quote';
 import Table, { TableComponent } from '@aomao/plugin-table';
+import Unorderedlist from '@aomao/plugin-unorderedlist';
+import Toolbar, { ToolbarComponent, ToolbarOptions, ToolbarPlugin } from '@aomao/toolbar';
+import { useEffect, useRef, useState } from 'react';
 
 export type RichEditorProps = {
   content: string;
@@ -38,19 +27,7 @@ export default function RichEditor(props: RichEditorProps) {
 
   useEffect(() => {
     const engine = new Engine(domRef.current!, {
-      plugins: [
-        Orderedlist,
-        Unorderedlist,
-        ToolbarPlugin,
-        Heading,
-        CodeBlock,
-        Bold,
-        Code,
-        Link,
-        Quote,
-        Table,
-        Italic,
-      ],
+      plugins: [Orderedlist, Unorderedlist, ToolbarPlugin, Heading, CodeBlock, Bold, Code, Link, Quote, Table, Italic],
       cards: [ToolbarComponent, CodeBlockComponent, TableComponent],
       config: {
         [ToolbarPlugin.pluginName]: {
@@ -59,11 +36,11 @@ export default function RichEditor(props: RichEditorProps) {
               title: 'Tools', // optional
               items: [
                 { name: 'codeblock', title: 'Code Block' },
-                { name: 'table', title: 'Table' },
+                { name: 'table', title: 'Table' }
                 // 'math',
                 // 'status',
-              ],
-            },
+              ]
+            }
           ],
           popup: {
             // 选中后弹出的 popup 工具栏
@@ -71,20 +48,14 @@ export default function RichEditor(props: RichEditorProps) {
               [{ name: 'undo', title: 'Undo' }, 'redo'],
               {
                 icon: 'text',
-                items: [
-                  'bold',
-                  'italic',
-                  'strikethrough',
-                  'underline',
-                  'backcolor',
-                  'moremark',
-                ],
-              },
-            ],
-          } as ToolbarOptions,
-        },
+                items: ['bold', 'italic', 'strikethrough', 'underline', 'backcolor', 'moremark']
+              }
+            ]
+          } as ToolbarOptions
+        }
       },
       readonly: true,
+      placeholder: 'Please input content here'
     });
     setEngine(engine);
 
@@ -94,6 +65,9 @@ export default function RichEditor(props: RichEditorProps) {
   useEffect(() => {
     if (engine) {
       engine.readonly = !!props.readonly;
+      if (!props.readonly) {
+        domRef.current?.focus();
+      }
     }
   }, [engine, props.readonly]);
 
@@ -106,7 +80,7 @@ export default function RichEditor(props: RichEditorProps) {
   // engine 初始化且非 readonly 时显示工具栏
   const toobarVisible = !!engine && !props.readonly;
   return (
-    <div>
+    <div className="w-full h-full flex flex-col">
       <div className="text-left">
         {toobarVisible ? (
           <Toolbar
@@ -123,10 +97,10 @@ export default function RichEditor(props: RichEditorProps) {
                         // 'unorderedlist',
                         // 'quote',
                         { name: 'codeblock', title: 'Code Block' },
-                        { name: 'table', title: 'Table' },
-                      ],
-                    },
-                  ],
+                        { name: 'table', title: 'Table' }
+                      ]
+                    }
+                  ]
 
                   // groups: [
                   //   {
@@ -134,17 +108,14 @@ export default function RichEditor(props: RichEditorProps) {
                   //     items: ['image-uploader', 'file-uploader'],
                   //   },
                   // ],
-                },
+                }
               ],
-              ['bold', 'italic', 'link'],
+              ['bold', 'italic', 'link']
             ]}
           />
         ) : null}
       </div>
-      <div
-        className="w-[782px] px-4 pt-4 mx-auto border-x border-gray-100 min-h-[calc(100vh_-_100px)]"
-        ref={domRef}
-      ></div>
+      <div className="w-full px-4 pt-4 mx-auto border-x border-gray-100 flex-1 overflow-auto" ref={domRef}></div>
     </div>
   );
 }

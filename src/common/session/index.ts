@@ -1,7 +1,9 @@
 import { headers } from 'next/headers';
+
+import { SessionObject } from '@/types/common-types';
+
 import { IStore } from './IStore';
 import { MemoryStore } from './MemoryStore';
-import { SessionObject } from '@/types/common-types';
 
 function initSession(options: { store?: IStore }) {
   const store = options.store ?? new MemoryStore();
@@ -18,7 +20,7 @@ function initSession(options: { store?: IStore }) {
     const h = headers();
     const sid = h.get('__internal_server_sid') || '';
     await store.set(sid, sessionValue, {
-      expires: Date.now() + 1000 * 60 * 60 * 24,
+      expires: Date.now() + 1000 * 60 * 60 * 24
     });
   }
 

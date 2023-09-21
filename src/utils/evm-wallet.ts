@@ -1,11 +1,7 @@
+import { cipher, decryptWithPrivateKey, encryptWithPublicKey } from 'eth-crypto';
+import { customAlphabet } from 'nanoid';
 import { getAddress, hexToNumber } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import {
-  encryptWithPublicKey,
-  decryptWithPrivateKey,
-  cipher,
-} from 'eth-crypto';
-import { customAlphabet } from 'nanoid';
 
 export type SignResult = {
   message: string;
@@ -16,8 +12,8 @@ export type SignResult = {
 class EvmWallet {
   private provider: any;
 
-  public chainId: number = 0;
-  public address: string = '';
+  public chainId = 0;
+  public address = '';
 
   private init(): void {
     if ('ethereum' in window) {
@@ -43,11 +39,11 @@ class EvmWallet {
     }
 
     const accounts = await this.provider.request({
-      method: 'eth_requestAccounts',
+      method: 'eth_requestAccounts'
     });
     const chainIdHex = await this.provider.request({
       method: 'eth_chainId',
-      params: [],
+      params: []
     });
 
     this.chainId = hexToNumber(chainIdHex);
@@ -76,7 +72,7 @@ class EvmWallet {
       nonce: this.getNonce(),
       statement,
       signType: 'EIP-4361',
-      address: evmWallet.address,
+      address: evmWallet.address
     };
     return this.sign(JSON.stringify(loginMsg));
   }
@@ -93,16 +89,16 @@ class EvmWallet {
             version: msgData.version,
             nonce: msgData.nonce,
             statement: msgData.statement,
-            address: msgData.address,
+            address: msgData.address
           })
         : message;
     const sign = await this.provider.request({
       method: 'personal_sign',
-      params: [fullMessage, this.address],
+      params: [fullMessage, this.address]
     });
     return {
       message: fullMessage,
-      signature: sign as `0x${string}`,
+      signature: sign as `0x${string}`
     };
   }
 
@@ -115,7 +111,7 @@ class EvmWallet {
     statement,
     chainId,
     uri,
-    address,
+    address
   }: {
     domain: string;
     version: string;
@@ -153,11 +149,11 @@ class EvmWallet {
     await this.initAndConnect();
     const sign = await this.provider.request({
       method: 'eth_signTypedData_v4',
-      params: [this.address, message],
+      params: [this.address, message]
     });
     return {
       message,
-      signature: sign,
+      signature: sign
     };
   }
 
@@ -199,15 +195,15 @@ class EvmWallet {
       JSON.stringify({
         types: {
           EIP712Domain: [{ name: 'name', type: 'string' }],
-          Info: [{ name: 'seed', type: 'string' }],
+          Info: [{ name: 'seed', type: 'string' }]
         },
         primaryType: 'Info',
         domain: {
-          name: 'Secure Note',
+          name: 'Secure Note'
         },
         message: {
-          seed,
-        },
+          seed
+        }
       })
     );
     const privateKey = signResult.signature.slice(0, 66) as `0x${string}`;
@@ -215,7 +211,7 @@ class EvmWallet {
 
     return {
       privateKey,
-      publicKey,
+      publicKey
     };
   }
 }

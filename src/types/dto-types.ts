@@ -21,7 +21,7 @@ export type SetIdentityDto = {
   identityPublicKey: string;
 };
 
-export type QueryDocumentDto = {};
+export type QueryDocumentDto = object;
 
 export type QueryDocumentDetailDto = {
   docId: string;
@@ -52,4 +52,5 @@ export type DocumentRespDto = {
   pwd2: string;
   title: string;
   updatedAt: string;
+  decryptedContent?: string;
 };

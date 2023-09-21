@@ -15,11 +15,7 @@ export class MemoryStore implements IStore {
     }
     return value.data;
   }
-  async set(
-    key: string,
-    value: unknown,
-    options: { expires: number }
-  ): Promise<void> {
+  async set(key: string, value: unknown, options: { expires: number }): Promise<void> {
     this.sessions.set(key, { data: value, expires: options.expires });
   }
 

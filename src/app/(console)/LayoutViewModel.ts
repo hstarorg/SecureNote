@@ -1,25 +1,24 @@
-import {
-  signIn,
-  createDocument,
-  queryMyDocuments,
-  setIdentity,
-} from '@/services';
-import { evmWallet, aesEncrypt } from '@/utils';
-import { ControllerBase, ServiceInstance } from '@/utils/bizify';
-import { globalVm } from '../global-vm';
-import { nanoid } from 'nanoid';
 import { message } from 'antd5';
+import { nanoid } from 'nanoid';
+
+import { createDocument, queryMyDocuments, setIdentity, signIn } from '@/services';
+import { aesEncrypt, evmWallet } from '@/utils';
+import { ControllerBase, ServiceInstance } from '@/utils/bizify';
+
+import { globalVm } from '../global-vm';
 
 type LayoutState = {
   signInApi: ServiceInstance<typeof signIn>;
   queryMyDocumentsApi: ServiceInstance<typeof queryMyDocuments>;
   setIdentityApi: ServiceInstance<typeof setIdentity>;
+  createDocumentApi: ServiceInstance<typeof createDocument>;
   docModal: {
     open: boolean;
   };
   identityModal: {
     open: boolean;
   };
+  search: string;
 };
 
 export class LayoutViewModel extends ControllerBase<LayoutState> {
@@ -27,39 +26,39 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
     return {
       signInApi: this.$createService(signIn),
       queryMyDocumentsApi: this.$createService(queryMyDocuments),
+      createDocumentApi: this.$createService(createDocument),
       setIdentityApi: this.$createService(setIdentity),
       docModal: { open: false },
       identityModal: { open: false },
+      search: ''
     };
   }
 
-  async connetWallet() {
+  async connetWallet(): Promise<void> {
     const result = await evmWallet.signByEIP4361('Welcome to SecureNote!');
 
-    this.state.signInApi
-      .execute({ ...result, address: evmWallet.address as any })
-      .then((data) => {
-        globalVm.loadUser();
-      });
+    this.state.signInApi.execute({ ...result, address: evmWallet.address as any }).then(() => {
+      globalVm.loadUser();
+    });
   }
 
-  async signOut() {
+  async signOut(): Promise<void> {
     globalVm.signOut();
   }
 
-  async showDocModal() {
+  async showDocModal(): Promise<void> {
     this.state.docModal.open = true;
   }
 
-  async closeDocModal() {
+  async closeDocModal(): Promise<void> {
     this.state.docModal.open = false;
   }
 
-  async loadMyDocuments() {
-    this.state.queryMyDocumentsApi.execute({}).then((data) => {});
+  async loadMyDocuments(): Promise<void> {
+    await this.state.queryMyDocumentsApi.execute({});
   }
 
-  async handleCreateDoc(values: any) {
+  async handleCreateDoc(values: { title: any; description: any }, cb: (id: string) => void): Promise<void> {
     // 1. 随机生成文档密码
     const docPassword = nanoid();
 
@@ -68,50 +67,50 @@ export class LayoutViewModel extends ControllerBase<LayoutState> {
     // 2. 用公钥加密密码
     const publicKey = user?.identityPublicKey;
     if (!publicKey) {
-      message.error(
-        'Can not find identity public key, please set identity first'
-      );
+      message.error('Can not find identity public key, please set identity first');
     }
-    const encryptedPassword = await evmWallet.encryptWithPublicKey(
-      docPassword,
-      publicKey!
-    );
+    console.log('docPassword', docPassword);
 
+    const encryptedPassword = await evmWallet.encryptWithPublicKey(docPassword, publicKey!);
+    console.log('encryptedPassword', encryptedPassword);
     // 3. 用密码加密文档内容
     const encryptedContent = await aesEncrypt('', docPassword);
 
     // 4. 提交到 DB
-    const doc = await createDocument({
+    const res = await this.state.createDocumentApi.execute({
       title: values.title,
       description: values.description || '',
       content: encryptedContent,
-      pwd2: encryptedPassword,
+      pwd2: encryptedPassword
     });
-
+    cb(res?.doc?.id);
     this.closeDocModal();
     this.loadMyDocuments();
   }
 
-  showIdentityModal() {
+  showIdentityModal(): void {
     this.state.identityModal.open = true;
   }
 
-  hideIdentityModal() {
+  hideIdentityModal(): void {
     this.state.identityModal.open = false;
   }
 
-  getSeed() {
+  getSeed(): string {
     return `Seed for generate identity in Secure Note: ${nanoid()}`;
   }
 
-  async handleSetIdentitySeed(values: { seed: string }) {
+  async handleSetIdentitySeed(values: { seed: string }): Promise<void> {
     const identity = await evmWallet.getIdentityByWallet(values.seed);
 
-    const a = await this.state.setIdentityApi.execute({
+    await this.state.setIdentityApi.execute({
       identitySeed: values.seed,
-      identityPublicKey: identity.publicKey,
+      identityPublicKey: identity.publicKey
     });
 
     globalVm.loadUser();
+  }
+  setSearch(search: string): void {
+    this.state.search = search;
   }
 }

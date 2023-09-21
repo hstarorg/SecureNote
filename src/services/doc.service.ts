@@ -4,8 +4,9 @@ import {
   DocumentRespDto,
   QueryDocumentDetailDto,
   QueryDocumentDto,
-  UpdateDocumentDto,
+  UpdateDocumentDto
 } from '@/types/dto-types';
+
 import { gatewayRequest } from './gateway.base';
 
 export function queryMyDocuments(dto: QueryDocumentDto) {
@@ -24,8 +25,6 @@ export function saveDocumentContent(dto: DocumentContentDto) {
   return gatewayRequest('saveDocumentContent', dto);
 }
 
-export function getDocumentDetail(
-  dto: QueryDocumentDetailDto
-): Promise<DocumentRespDto> {
+export function getDocumentDetail(dto: QueryDocumentDetailDto): Promise<DocumentRespDto> {
   return gatewayRequest('getDocumentDetail', dto);
 }
