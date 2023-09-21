@@ -1,10 +1,11 @@
-import { getDocumentDetail, saveDocumentContent } from '@/services';
-import { evmWallet, aesEncrypt, aesDecrypt } from '@/utils';
-import { ControllerBase, ServiceInstance } from '@/utils/bizify';
-import { globalVm } from '@/app/global-vm';
-import { message } from 'antd5';
-import { DocumentRespDto } from '@/types/dto-types';
 import Engine from '@aomao/engine';
+import { message } from 'antd5';
+
+import { globalVm } from '@/app/global-vm';
+import { getDocumentDetail, saveDocumentContent } from '@/services';
+import { DocumentRespDto } from '@/types/dto-types';
+import { aesDecrypt, aesEncrypt, evmWallet } from '@/utils';
+import { ControllerBase, ServiceInstance } from '@/utils/bizify';
 
 type ViewState = {
   docId: string;
@@ -31,65 +32,60 @@ export class DocDetailViewModel extends ControllerBase<ViewState> {
       getDocumentDetailApi: this.$createService(getDocumentDetail),
       saveDocumentContentApi: this.$createService(saveDocumentContent),
       docModal: { open: false },
-      identityModal: { open: false },
+      identityModal: { open: false }
     };
   }
 
-  protected $onCreated = (inParams?: any) => {
-    this.state.docId = inParams.docId;
+  protected $onCreated = (inParams?: { [key: string]: any }): void => {
+    this.state.docId = inParams?.docId;
     this.loadDocumentDetail();
   };
 
   private async loadDocumentDetail() {
-    this.state.getDocumentDetailApi
-      .execute({ docId: this.state.docId })
-      .then(async (data) => {
-        this.processDocument(data);
-      });
+    this.state.getDocumentDetailApi.execute({ docId: this.state.docId }).then(async (data) => {
+      this.state.docDetail = data;
+    });
   }
 
-  private async processDocument(docDetail: DocumentRespDto) {
+  async processDocument(docDetail: DocumentRespDto): Promise<void> {
     if (!this.state.docPassword) {
       const seed = globalVm.$getState().user?.identitySeed || '';
 
       const identity = await evmWallet.getIdentityByWallet(seed);
 
-      const docPassword = await evmWallet.decryptWithPrivateKey(
-        docDetail.pwd2,
-        identity.privateKey
-      );
+      const docPassword = await evmWallet.decryptWithPrivateKey(docDetail.pwd2, identity.privateKey);
       this.state.docPassword = docPassword;
     }
 
     // 此时密码都有了
-    let decryptedContent = '';
+    let decryptedContent = undefined;
     if (docDetail.content) {
-      decryptedContent = await aesDecrypt(
-        docDetail.content,
-        this.state.docPassword
-      );
+      try {
+        decryptedContent = await aesDecrypt(docDetail.content, this.state.docPassword);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      decryptedContent = '';
     }
-
-    this.state.docDetail = { ...docDetail, content: decryptedContent };
+    this.state.docDetail = { ...docDetail, decryptedContent };
   }
 
-  setEditorEngine(engine: Engine) {
+  setEditorEngine(engine: Engine): void {
     this.editorEngine = engine;
   }
 
-  startEdit() {
+  startEdit(): void {
     this.state.isEdit = true;
   }
 
-  async saveDocument() {
+  async saveDocument(): Promise<void> {
     const content = this.editorEngine.model.toValue();
     const encryptedContent = await aesEncrypt(content, this.state.docPassword);
 
-    this.state.saveDocumentContentApi
-      .execute({ docId: this.state.docId, content: encryptedContent })
-      .then((data) => {
-        message.success('Save success');
-        this.state.isEdit = false;
-      });
+    this.state.saveDocumentContentApi.execute({ docId: this.state.docId, content: encryptedContent }).then(() => {
+      message.success('Save success');
+      this.state.isEdit = false;
+    });
   }
 }

@@ -1,17 +1,19 @@
-import { getAddress, verifyMessage, verifyTypedData } from 'viem';
-import { db, getSession, setSession } from '../common';
+import { getAddress, verifyMessage } from 'viem';
+
 import {
   CreateDocumentDto,
   DocumentContentDto,
   QueryDocumentDetailDto,
-  QueryDocumentDto,
   SetIdentityDto,
   SignInDto,
-  UpdateDocumentDto,
+  UpdateDocumentDto
 } from '@/types/dto-types';
+
+import { db, getSession, setSession } from '../common';
+
 import { BadRequestError } from './errors';
 
-export type RequestInfo<T extends any> = {
+export type RequestInfo<T> = {
   pathname: string;
   query: Record<string, string>;
   params: any;
@@ -33,18 +35,18 @@ export const actionHandlers: Record<string, HandlerFunc> = {
     const normalizedAddress = getAddress(address) as string;
     const user = await db.user.upsert({
       where: {
-        address: normalizedAddress,
+        address: normalizedAddress
       },
       update: {
-        lastLoginAt: new Date(),
+        lastLoginAt: new Date()
       },
       create: {
         address: normalizedAddress,
         avatarUrl: '',
         identityPublicKey: '',
         identitySeed: '',
-        displayName: '',
-      },
+        displayName: ''
+      }
     });
     await setSession({ user: { address: user.address } });
     return null;
@@ -65,8 +67,8 @@ export const actionHandlers: Record<string, HandlerFunc> = {
         where: { address: userId, identitySeed: '', identityPublicKey: '' },
         data: {
           identitySeed,
-          identityPublicKey,
-        },
+          identityPublicKey
+        }
       });
       if (!user.identitySeed) {
         throw new BadRequestError('Set identity failed');
@@ -82,12 +84,12 @@ export const actionHandlers: Record<string, HandlerFunc> = {
     const session = await getSession();
     const userId = session.user?.address || '';
     const user = await db.user.findUnique({
-      where: { address: userId },
+      where: { address: userId }
     });
     return user;
   },
 
-  async queryMyDocuments(info: RequestInfo<QueryDocumentDto>) {
+  async queryMyDocuments() {
     const session = await getSession();
     const userId = session.user?.address || '';
     const docs = await db.doc.findMany({
@@ -95,8 +97,8 @@ export const actionHandlers: Record<string, HandlerFunc> = {
       orderBy: { createdAt: 'desc' },
       select: {
         title: true,
-        id: true,
-      },
+        id: true
+      }
     });
     return { rows: docs };
   },
@@ -112,8 +114,8 @@ export const actionHandlers: Record<string, HandlerFunc> = {
         pwd2,
         author: userId,
         content: '',
-        deleted: false,
-      },
+        deleted: false
+      }
     });
 
     return { doc: newDoc };
@@ -127,7 +129,7 @@ export const actionHandlers: Record<string, HandlerFunc> = {
     const doc = await db.doc.findUnique({
       where: {
         id: docId,
-        author: userId,
+        author: userId
       },
       select: {
         content: true,
@@ -136,15 +138,15 @@ export const actionHandlers: Record<string, HandlerFunc> = {
         id: true,
         pwd2: true,
         title: true,
-        updatedAt: true,
-      },
+        updatedAt: true
+      }
     });
     return doc;
   },
 
   async updateDocument(info: RequestInfo<UpdateDocumentDto>) {
     const { title, description } = info.data;
-    return { doc: {} };
+    return { doc: { title, description } };
   },
 
   async saveDocumentContent(info: RequestInfo<DocumentContentDto>) {
@@ -154,9 +156,9 @@ export const actionHandlers: Record<string, HandlerFunc> = {
 
     await db.doc.update({
       where: { id: docId, author: userId },
-      data: { content, updatedAt: new Date() },
+      data: { content, updatedAt: new Date() }
     });
 
     return null;
-  },
+  }
 };

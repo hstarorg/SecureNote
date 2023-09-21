@@ -2,13 +2,7 @@ import { Buffer } from 'buffer';
 
 async function getAesKey(key: string) {
   const subtle = globalThis.crypto.subtle;
-  const aesKey = await subtle.importKey(
-    'raw',
-    Buffer.from(key, 'utf-8'),
-    'AES-GCM',
-    true,
-    ['encrypt', 'decrypt']
-  );
+  const aesKey = await subtle.importKey('raw', Buffer.from(key, 'utf-8'), 'AES-GCM', true, ['encrypt', 'decrypt']);
   return aesKey;
 }
 
@@ -54,23 +48,14 @@ async function aes256GcmEncrypt(
  * @param iv 随机种子（16进制）
  * @returns
  */
-async function aes256GcmDecrypt(
-  cipherText: string,
-  key: string,
-  iv: string,
-  options?: { encoding?: BufferEncoding }
-) {
+async function aes256GcmDecrypt(cipherText: string, key: string, iv: string, options?: { encoding?: BufferEncoding }) {
   const subtle = globalThis.crypto.subtle;
   const aesKey = await getAesKey(key);
 
   const encoding = options?.encoding ?? 'hex';
   const cipherTextBuf = Buffer.from(cipherText, encoding);
 
-  const decrypted = await subtle.decrypt(
-    { name: 'AES-GCM', iv: Buffer.from(iv, 'hex') },
-    aesKey,
-    cipherTextBuf
-  );
+  const decrypted = await subtle.decrypt({ name: 'AES-GCM', iv: Buffer.from(iv, 'hex') }, aesKey, cipherTextBuf);
 
   const originalText = Buffer.from(decrypted).toString('utf-8');
   return originalText;
@@ -80,7 +65,7 @@ function splitEncryptionText(encryptionText: string) {
   const IVSize = 12 * 2;
   return {
     iv: encryptionText.slice(0, IVSize),
-    cipherText: encryptionText.slice(IVSize),
+    cipherText: encryptionText.slice(IVSize)
   };
 }
 
@@ -90,28 +75,22 @@ function generateAesIV() {
   return Buffer.from(filledArray).toString('hex');
 }
 
-export async function aesEncrypt(
-  originalText: string,
-  password: string
-): Promise<string> {
+export async function aesEncrypt(originalText: string, password: string): Promise<string> {
   const filledPwd = password.padEnd(32, '0').slice(0, 32);
 
   const iv = generateAesIV();
 
   const result = await aes256GcmEncrypt(originalText, filledPwd, {
     iv,
-    encoding: 'base64',
+    encoding: 'base64'
   });
   return result.iv + result.cipherText;
 }
 
-export async function aesDecrypt(
-  encryptionText: string,
-  password: string
-): Promise<string> {
+export async function aesDecrypt(encryptionText: string, password: string): Promise<string> {
   const filledPwd = password.padEnd(32, '0').slice(0, 32);
   const splitResult = splitEncryptionText(encryptionText);
   return aes256GcmDecrypt(splitResult.cipherText, filledPwd, splitResult.iv, {
-    encoding: 'base64',
+    encoding: 'base64'
   });
 }

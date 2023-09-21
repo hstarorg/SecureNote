@@ -1,8 +1,7 @@
 import { nanoid } from 'nanoid';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function middleware(request: NextResponse) {
   let sid = request.cookies.get('_sn')?.value;
 
   if (!sid) {
@@ -16,8 +15,8 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next({
     request: {
       // New request headers
-      headers: requestHeaders,
-    },
+      headers: requestHeaders
+    }
   });
 
   response.cookies.set('_sn', sid);
@@ -26,5 +25,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/:path*'],
+  matcher: ['/:path*']
 };

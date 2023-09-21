@@ -1,10 +1,6 @@
 import { getUser, signOut } from '@/services';
 import { UserRespDto } from '@/types/dto-types';
-import {
-  ControllerBase,
-  ServiceInstance,
-  defineViewModel,
-} from '@/utils/bizify';
+import { ControllerBase, defineViewModel, ServiceInstance } from '@/utils/bizify';
 
 type GlobalState = {
   user?: UserRespDto;
@@ -18,7 +14,7 @@ class GlobalVM extends ControllerBase<GlobalState> {
     return {
       isLogged: false,
       getUserApi: this.$createService(getUser),
-      signOutApi: this.$createService(signOut),
+      signOutApi: this.$createService(signOut)
     };
   }
 
