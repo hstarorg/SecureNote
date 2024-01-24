@@ -7,6 +7,7 @@ import { MemoryStore } from './MemoryStore';
 
 function initSession(options: { store?: IStore }) {
   const store = options.store ?? new MemoryStore();
+  console.log('init store');
   async function getSession() {
     const h = headers();
     const sid = h.get('__internal_server_sid') || '';
@@ -27,7 +28,11 @@ function initSession(options: { store?: IStore }) {
   return { getSession, setSession };
 }
 
-const sessionFunctions = initSession({});
+if(!(global as any).sessionFunctions){
+  (global as any).sessionFunctions = initSession({});
+}
+
+const sessionFunctions = (global as any).sessionFunctions;
 
 export async function getSession(): Promise<SessionObject> {
   const session = (await sessionFunctions.getSession()) as SessionObject;
