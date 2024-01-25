@@ -67,32 +67,34 @@ export default function ConsoleLayout(props: PropsWithChildren<object>) {
             <div className="pl-2 text-2xl font-bold leading-[47px]">Secure Note</div>
           </div>
           {/* user area */}
-          <div className="py-2 text-center flex flex-row ">
-            <div className="mr-4">
-              {loggedIn ? (
-                <Dropdown.Button
-                  menu={{
-                    items: [
-                      {
-                        label: 'Sign Out',
-                        key: '1',
-                        icon: <LogoutOutlined />
-                      }
-                    ],
-                    onClick: () => vm.signOut()
-                  }}
-                >
-                  <div className="flex flex-row">
-                    <Image className="mr-2" alt="" width={20} height={20} src={'/metamask.svg'}></Image> {userAddress}
-                  </div>
-                </Dropdown.Button>
-              ) : (
-                <Button type="primary" onClick={vm.connetWallet}>
-                  Sign In
-                </Button>
-              )}
+          {globalData.isLoaded ? (
+            <div className="py-2 text-center flex flex-row ">
+              <div className="mr-4">
+                {loggedIn ? (
+                  <Dropdown.Button
+                    menu={{
+                      items: [
+                        {
+                          label: 'Sign Out',
+                          key: '1',
+                          icon: <LogoutOutlined />
+                        }
+                      ],
+                      onClick: () => vm.signOut()
+                    }}
+                  >
+                    <div className="flex flex-row">
+                      <Image className="mr-2" alt="" width={20} height={20} src={'/metamask.svg'}></Image> {userAddress}
+                    </div>
+                  </Dropdown.Button>
+                ) : (
+                  <Button type="primary" onClick={vm.connetWallet}>
+                    Sign In
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
         <div className="flex-1 flex flex-row">
           {loggedIn ? (

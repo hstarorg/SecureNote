@@ -11,7 +11,12 @@ export function signOut() {
 }
 
 export function getUser(): Promise<UserRespDto> {
-  return gatewayRequest('getUser');
+  return gatewayRequest('getUser').catch((err) => {
+    if (err?.statusCode === 401) {
+      return null;
+    }
+    return Promise.reject(err);
+  });
 }
 
 export function setIdentity(dto: SetIdentityDto) {
