@@ -1,5 +1,6 @@
 import { getAddress, verifyMessage } from 'viem';
 
+import { SessionObject } from '@/types/common-types';
 import {
   CreateDocumentDto,
   DocumentContentDto,
@@ -12,7 +13,6 @@ import {
 import { db, getSession } from './common';
 
 import { BadRequestError, UnauthorizedError } from './errors';
-import { SessionObject } from '@/types/common-types';
 
 export type RequestInfo<T> = {
   pathname: string;
