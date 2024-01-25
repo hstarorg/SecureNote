@@ -9,9 +9,9 @@ import {
   UpdateDocumentDto
 } from '@/types/dto-types';
 
-import { db, getSession, setSession } from '../common';
+import { db, getSession } from './common';
 
-import { BadRequestError } from './errors';
+import { BadRequestError, UnauthorizedError } from './errors';
 
 export type RequestInfo<T> = {
   pathname: string;
@@ -48,18 +48,24 @@ export const actionHandlers: Record<string, HandlerFunc> = {
         displayName: ''
       }
     });
-    await setSession({ user: { address: user.address } });
+    const session = await getSession();
+    session.user = { address: user.address };
+    await session.save();
     return null;
   },
 
   signOut: async () => {
-    await setSession({ user: undefined });
+    const session = await getSession();
+    session.destroy();
     return null;
   },
 
   async setIdentity(info: RequestInfo<SetIdentityDto>) {
     const session = await getSession();
     const userId = session.user?.address || '';
+    if (userId) {
+      throw new UnauthorizedError();
+    }
     const { identitySeed, identityPublicKey } = info.data;
 
     try {
@@ -83,6 +89,10 @@ export const actionHandlers: Record<string, HandlerFunc> = {
   async getUser() {
     const session = await getSession();
     const userId = session.user?.address || '';
+    if (userId) {
+      throw new UnauthorizedError();
+    }
+
     const user = await db.user.findUnique({
       where: { address: userId }
     });
@@ -92,6 +102,10 @@ export const actionHandlers: Record<string, HandlerFunc> = {
   async queryMyDocuments() {
     const session = await getSession();
     const userId = session.user?.address || '';
+    if (userId) {
+      throw new UnauthorizedError();
+    }
+
     const docs = await db.doc.findMany({
       where: { author: userId },
       orderBy: { createdAt: 'desc' },
@@ -106,6 +120,10 @@ export const actionHandlers: Record<string, HandlerFunc> = {
   async createDocument(info: RequestInfo<CreateDocumentDto>) {
     const session = await getSession();
     const userId = session.user?.address || '';
+    if (userId) {
+      throw new UnauthorizedError();
+    }
+
     const { title, description, pwd2 } = info.data;
     const newDoc = await db.doc.create({
       data: {
@@ -124,6 +142,11 @@ export const actionHandlers: Record<string, HandlerFunc> = {
   async getDocumentDetail(info: RequestInfo<QueryDocumentDetailDto>) {
     const session = await getSession();
     const userId = session.user?.address || '';
+
+    if (userId) {
+      throw new UnauthorizedError();
+    }
+
     const { docId } = info.data;
 
     const doc = await db.doc.findUnique({
@@ -152,6 +175,11 @@ export const actionHandlers: Record<string, HandlerFunc> = {
   async saveDocumentContent(info: RequestInfo<DocumentContentDto>) {
     const session = await getSession();
     const userId = session.user?.address || '';
+
+    if (userId) {
+      throw new UnauthorizedError();
+    }
+
     const { docId, content } = info.data;
 
     await db.doc.update({

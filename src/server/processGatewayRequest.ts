@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 import { actionHandlers } from './action-handlers';
 
 function json(resData: unknown) {
