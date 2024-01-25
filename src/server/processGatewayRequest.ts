@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { actionHandlers } from './action-handlers';
+import { BadRequestError, UnauthorizedError } from './errors';
 
 function json(resData: unknown) {
   return NextResponse.json({ success: true, data: resData, statusCode: 200 });
@@ -26,7 +27,7 @@ export async function processGatewayRequest(request: NextRequest, context: { par
   const data = await request.json();
 
   // 2. Find the action handler
-  const action = data.action;
+  const action = data.action as string;
   if (!action) {
     return jsonError('No action provided', 400);
   }
@@ -45,6 +46,11 @@ export async function processGatewayRequest(request: NextRequest, context: { par
     const result = await actionHandlers[action](requesInfo);
     return json(result);
   } catch (reason: unknown) {
+    if (reason instanceof BadRequestError) {
+      return jsonError('BadRequestError', 400, reason);
+    } else if (reason instanceof UnauthorizedError) {
+      return jsonError('UnauthorizedError', 401, reason);
+    }
     console.error(reason);
     return jsonError('Error executing action', 500, reason as Error);
   }

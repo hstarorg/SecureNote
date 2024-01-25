@@ -12,6 +12,7 @@ import {
 import { db, getSession } from './common';
 
 import { BadRequestError, UnauthorizedError } from './errors';
+import { SessionObject } from '@/types/common-types';
 
 export type RequestInfo<T> = {
   pathname: string;
@@ -21,6 +22,14 @@ export type RequestInfo<T> = {
 };
 
 type HandlerFunc<T = any> = (info: RequestInfo<T>) => Promise<any>;
+
+async function checkAndGetUser(): Promise<NonNullable<SessionObject['user']>> {
+  const session = await getSession();
+  if (!session.user || !session.user.address) {
+    throw new UnauthorizedError();
+  }
+  return session.user!;
+}
 
 export const actionHandlers: Record<string, HandlerFunc> = {
   signIn: async (info: RequestInfo<SignInDto>) => {
@@ -61,16 +70,11 @@ export const actionHandlers: Record<string, HandlerFunc> = {
   },
 
   async setIdentity(info: RequestInfo<SetIdentityDto>) {
-    const session = await getSession();
-    const userId = session.user?.address || '';
-    if (userId) {
-      throw new UnauthorizedError();
-    }
     const { identitySeed, identityPublicKey } = info.data;
-
+    const sessionUser = await checkAndGetUser();
     try {
       const user = await db.user.update({
-        where: { address: userId, identitySeed: '', identityPublicKey: '' },
+        where: { address: sessionUser.address, identitySeed: '', identityPublicKey: '' },
         data: {
           identitySeed,
           identityPublicKey
@@ -87,27 +91,19 @@ export const actionHandlers: Record<string, HandlerFunc> = {
   },
 
   async getUser() {
-    const session = await getSession();
-    const userId = session.user?.address || '';
-    if (userId) {
-      throw new UnauthorizedError();
-    }
+    const sessionUser = await checkAndGetUser();
 
     const user = await db.user.findUnique({
-      where: { address: userId }
+      where: { address: sessionUser.address }
     });
     return user;
   },
 
   async queryMyDocuments() {
-    const session = await getSession();
-    const userId = session.user?.address || '';
-    if (userId) {
-      throw new UnauthorizedError();
-    }
+    const sessionUser = await checkAndGetUser();
 
     const docs = await db.doc.findMany({
-      where: { author: userId },
+      where: { author: sessionUser.address },
       orderBy: { createdAt: 'desc' },
       select: {
         title: true,
@@ -118,11 +114,7 @@ export const actionHandlers: Record<string, HandlerFunc> = {
   },
 
   async createDocument(info: RequestInfo<CreateDocumentDto>) {
-    const session = await getSession();
-    const userId = session.user?.address || '';
-    if (userId) {
-      throw new UnauthorizedError();
-    }
+    const sessionUser = await checkAndGetUser();
 
     const { title, description, pwd2 } = info.data;
     const newDoc = await db.doc.create({
@@ -130,7 +122,7 @@ export const actionHandlers: Record<string, HandlerFunc> = {
         title,
         description: description || '',
         pwd2,
-        author: userId,
+        author: sessionUser.address,
         content: '',
         deleted: false
       }
@@ -140,19 +132,14 @@ export const actionHandlers: Record<string, HandlerFunc> = {
   },
 
   async getDocumentDetail(info: RequestInfo<QueryDocumentDetailDto>) {
-    const session = await getSession();
-    const userId = session.user?.address || '';
-
-    if (userId) {
-      throw new UnauthorizedError();
-    }
+    const sessionUser = await checkAndGetUser();
 
     const { docId } = info.data;
 
     const doc = await db.doc.findUnique({
       where: {
         id: docId,
-        author: userId
+        author: sessionUser.address
       },
       select: {
         content: true,
@@ -173,17 +160,12 @@ export const actionHandlers: Record<string, HandlerFunc> = {
   },
 
   async saveDocumentContent(info: RequestInfo<DocumentContentDto>) {
-    const session = await getSession();
-    const userId = session.user?.address || '';
-
-    if (userId) {
-      throw new UnauthorizedError();
-    }
+    const sessionUser = await checkAndGetUser();
 
     const { docId, content } = info.data;
 
     await db.doc.update({
-      where: { id: docId, author: userId },
+      where: { id: docId, author: sessionUser.address },
       data: { content, updatedAt: new Date() }
     });
 
