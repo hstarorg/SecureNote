@@ -19,6 +19,8 @@ class EvmWallet {
     if ('ethereum' in window) {
       const provider = window.ethereum;
       this.provider = provider;
+    } else if ('okxwallet' in window) {
+      this.provider = (window as any).okxwallet;
     } else {
       window.open('https://metamask.io/', `_blank`);
     }
